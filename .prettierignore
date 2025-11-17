@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Generated files
+*.d.ts
+*.js.map
+
+# WASM files
+wasm/*.wasm
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Documentation
+docs/
+
+# Test coverage
+coverage/
+
