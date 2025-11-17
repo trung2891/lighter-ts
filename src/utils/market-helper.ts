@@ -113,4 +113,3 @@ export class MarketHelper {
     return this.getConfig().quoteAsset;
   }
 }
-

@@ -1,6 +1,12 @@
 import { ApiClient } from './api-client';
 import { ApiResponse } from '../types';
-import { DepositHistory, WithdrawHistory, L1DepositParams, L1DepositResult, L1BridgeConfig } from '../types/api';
+import {
+  DepositHistory,
+  WithdrawHistory,
+  L1DepositParams,
+  L1DepositResult,
+  L1BridgeConfig,
+} from '../types/api';
 import { L1BridgeClient } from '../bridge/l1-bridge-client';
 
 export interface FastBridgeInfo {
@@ -79,7 +85,7 @@ export class BridgeApi {
       account_index: accountIndex.toString(),
       l1_address: l1Address,
       ...(cursor && { cursor }),
-      ...(filter && { filter })
+      ...(filter && { filter }),
     });
 
     const headers: Record<string, string> = {};
@@ -88,7 +94,10 @@ export class BridgeApi {
       headers['auth'] = authorization;
     }
 
-    const response = await this.client.get<DepositHistory>(`/api/v1/deposit/history?${params}`, headers);
+    const response = await this.client.get<DepositHistory>(
+      `/api/v1/deposit/history?${params}`,
+      headers
+    );
     return response.data;
   }
 
@@ -112,7 +121,7 @@ export class BridgeApi {
       account_index: accountIndex.toString(),
       l1_address: l1Address,
       ...(cursor && { cursor }),
-      ...(filter && { filter })
+      ...(filter && { filter }),
     });
 
     const headers: Record<string, string> = {};
@@ -121,7 +130,10 @@ export class BridgeApi {
       headers['auth'] = authorization;
     }
 
-    const response = await this.client.get<WithdrawHistory>(`/api/v1/withdraw/history?${params}`, headers);
+    const response = await this.client.get<WithdrawHistory>(
+      `/api/v1/withdraw/history?${params}`,
+      headers
+    );
     return response.data;
   }
 
@@ -132,9 +144,11 @@ export class BridgeApi {
    */
   public async depositFromL1(params: L1DepositParams): Promise<L1DepositResult> {
     if (!this.l1BridgeClient) {
-      throw new Error('L1 bridge client not configured. Please provide L1BridgeConfig in constructor.');
+      throw new Error(
+        'L1 bridge client not configured. Please provide L1BridgeConfig in constructor.'
+      );
     }
-    
+
     return await this.l1BridgeClient.depositToL2(params);
   }
 
@@ -145,9 +159,11 @@ export class BridgeApi {
    */
   public async getL1USDCBalance(address: string): Promise<string> {
     if (!this.l1BridgeClient) {
-      throw new Error('L1 bridge client not configured. Please provide L1BridgeConfig in constructor.');
+      throw new Error(
+        'L1 bridge client not configured. Please provide L1BridgeConfig in constructor.'
+      );
     }
-    
+
     return await this.l1BridgeClient.getUSDCBalance(address);
   }
 
@@ -158,9 +174,11 @@ export class BridgeApi {
    */
   public async getL1USDCAllowance(address: string): Promise<string> {
     if (!this.l1BridgeClient) {
-      throw new Error('L1 bridge client not configured. Please provide L1BridgeConfig in constructor.');
+      throw new Error(
+        'L1 bridge client not configured. Please provide L1BridgeConfig in constructor.'
+      );
     }
-    
+
     return await this.l1BridgeClient.getUSDCAllowance(address);
   }
 
@@ -171,9 +189,11 @@ export class BridgeApi {
    */
   public async getL1TransactionStatus(txHash: string): Promise<L1DepositResult> {
     if (!this.l1BridgeClient) {
-      throw new Error('L1 bridge client not configured. Please provide L1BridgeConfig in constructor.');
+      throw new Error(
+        'L1 bridge client not configured. Please provide L1BridgeConfig in constructor.'
+      );
     }
-    
+
     return await this.l1BridgeClient.getTransactionStatus(txHash);
   }
 }

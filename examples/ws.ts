@@ -16,34 +16,34 @@ async function basicWebSocketExample() {
       console.log('📡 Received message:', JSON.stringify(message, null, 2));
     },
     onClose: () => console.log('🔌 WebSocket closed'),
-    onError: (error) => console.error('❌ WebSocket error:', error)
+    onError: (error) => console.error('❌ WebSocket error:', error),
   });
 
   try {
     // Connect to WebSocket
     await wsClient.connect();
-    
+
     // Wait for connection to stabilize
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     // Subscribe to order book for ETH market (market 0)
     wsClient.send({
       type: 'subscribe',
-      channel: 'order_book/0'
+      channel: 'order_book/0',
     });
     console.log('✅ Subscribed to order book for market 0 (ETH)');
-    
+
     // Subscribe to market stats for ETH
     wsClient.send({
       type: 'subscribe',
-      channel: 'market_stats/0'
+      channel: 'market_stats/0',
     });
     console.log('✅ Subscribed to market stats for market 0 (ETH)');
-    
+
     // Subscribe to trades for ETH
     wsClient.send({
       type: 'subscribe',
-      channel: 'trade/0'
+      channel: 'trade/0',
     });
     console.log('✅ Subscribed to trades for market 0 (ETH)');
 
@@ -52,7 +52,6 @@ async function basicWebSocketExample() {
       wsClient.disconnect();
       console.log('\n🎉 WebSocket example completed!');
     }, 30000);
-
   } catch (error) {
     console.error('❌ Error:', error);
     await wsClient.disconnect();

@@ -32,6 +32,6 @@ export * from './request-batcher';
 
 // Client Factory removed - use direct client creation instead
 
-        // Re-export commonly used types
+// Re-export commonly used types
 export type { NonceManagerConfig } from './nonce-manager';
 export type { MarketConfig } from './price-utils';

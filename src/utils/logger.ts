@@ -3,7 +3,7 @@ export enum LogLevel {
   DEBUG = 0,
   INFO = 1,
   WARNING = 2,
-  ERROR = 3
+  ERROR = 3,
 }
 
 export interface LogEntry {
@@ -58,14 +58,14 @@ export class Logger {
       level,
       message,
       context,
-      error: context?.['error']
+      error: context?.['error'],
     };
 
     this.logs.push(entry);
 
     // Console output with structured logging
     const contextStr = context ? ` ${JSON.stringify(context, null, 2)}` : '';
-    
+
     switch (level) {
       case LogLevel.DEBUG:
         console.debug(`[DEBUG] ${message}${contextStr}`);
@@ -84,7 +84,6 @@ export class Logger {
         break;
     }
   }
-
 
   public getLogs(): LogEntry[] {
     return [...this.logs];

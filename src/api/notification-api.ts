@@ -27,7 +27,7 @@ export class NotificationApi {
   ): Promise<ResultCode> {
     const params = new URLSearchParams({
       notif_id: notifId,
-      account_index: accountIndex.toString()
+      account_index: accountIndex.toString(),
     });
 
     const headers: Record<string, string> = {};
@@ -36,7 +36,11 @@ export class NotificationApi {
       headers['auth'] = authorization;
     }
 
-    const response = await this.client.post<ResultCode>(`/api/v1/notification/ack?${params}`, {}, headers);
+    const response = await this.client.post<ResultCode>(
+      `/api/v1/notification/ack?${params}`,
+      {},
+      headers
+    );
     return response.data;
   }
 
@@ -54,7 +58,7 @@ export class NotificationApi {
   ): Promise<ApiResponse<ResultCode>> {
     const params = new URLSearchParams({
       notif_id: notifId,
-      account_index: accountIndex.toString()
+      account_index: accountIndex.toString(),
     });
 
     const headers: Record<string, string> = {};

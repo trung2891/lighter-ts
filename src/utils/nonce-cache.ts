@@ -18,7 +18,7 @@ export class NonceCache {
 
   async getNextNonce(apiKeyIndex: number): Promise<number> {
     const nonces = this.cache.get(apiKeyIndex);
-    
+
     // If no cached nonces or cache is empty, fetch new batch
     if (!nonces || nonces.length === 0 || this.isCacheExpired()) {
       await this.refreshNonces(apiKeyIndex);
@@ -31,10 +31,10 @@ export class NonceCache {
 
     // Return the first nonce and remove it from cache
     const nonceInfo = cachedNonces.shift()!;
-    
+
     // Update the cache with the remaining nonces
     this.cache.set(apiKeyIndex, cachedNonces);
-    
+
     // If cache is getting low, pre-fetch more nonces
     if (cachedNonces.length <= 2) {
       this.refreshNonces(apiKeyIndex).catch(() => {});
@@ -45,12 +45,12 @@ export class NonceCache {
 
   async getNextNonces(apiKeyIndex: number, count: number): Promise<number[]> {
     const nonces: number[] = [];
-    
+
     for (let i = 0; i < count; i++) {
       const nonce = await this.getNextNonce(apiKeyIndex);
       nonces.push(nonce);
     }
-    
+
     return nonces;
   }
 
@@ -62,7 +62,7 @@ export class NonceCache {
     }
 
     this.fetchPromise = this.doRefreshNonces(apiKeyIndex);
-    
+
     try {
       await this.fetchPromise;
     } finally {
@@ -73,11 +73,11 @@ export class NonceCache {
   private async doRefreshNonces(apiKeyIndex: number): Promise<void> {
     try {
       const newNonces = await this.fetchNonceCallback(apiKeyIndex, this.batchSize);
-      
-      const nonceInfos: NonceInfo[] = newNonces.map(nonce => ({
+
+      const nonceInfos: NonceInfo[] = newNonces.map((nonce) => ({
         nonce,
         timestamp: Date.now(),
-        apiKeyIndex
+        apiKeyIndex,
       }));
 
       this.cache.set(apiKeyIndex, nonceInfos);
@@ -93,7 +93,7 @@ export class NonceCache {
 
   // Pre-warm the cache for better performance
   async preWarmCache(apiKeyIndices: number[]): Promise<void> {
-    const promises = apiKeyIndices.map(index => this.refreshNonces(index));
+    const promises = apiKeyIndices.map((index) => this.refreshNonces(index));
     await Promise.all(promises);
   }
 
@@ -111,18 +111,18 @@ export class NonceCache {
   // Get cache statistics for monitoring
   getCacheStats(): Record<number, { count: number; oldest: number; newest: number }> {
     const stats: Record<number, { count: number; oldest: number; newest: number }> = {};
-    
+
     for (const [apiKeyIndex, nonces] of Array.from(this.cache.entries())) {
       if (nonces.length > 0) {
-        const timestamps = nonces.map(n => n.timestamp);
+        const timestamps = nonces.map((n) => n.timestamp);
         stats[apiKeyIndex] = {
           count: nonces.length,
           oldest: Math.min(...timestamps),
-          newest: Math.max(...timestamps)
+          newest: Math.max(...timestamps),
         };
       }
     }
-    
+
     return stats;
   }
 
@@ -144,7 +144,7 @@ export class NonceCache {
         nonces.unshift({
           nonce: lastNonce.nonce - 1,
           timestamp: Date.now(),
-          apiKeyIndex
+          apiKeyIndex,
         });
         this.cache.set(apiKeyIndex, nonces);
       }

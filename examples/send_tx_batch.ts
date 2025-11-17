@@ -4,17 +4,17 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 async function main() {
-  const BASE_URL = process.env.BASE_URL || "https://mainnet.zklighter.elliot.ai";
-  const API_PRIVATE_KEY = process.env.API_PRIVATE_KEY || "";
-  const ACCOUNT_INDEX = parseInt(process.env.ACCOUNT_INDEX || "1000");
-  const API_KEY_INDEX = parseInt(process.env.API_KEY_INDEX || "4");
+  const BASE_URL = process.env.BASE_URL || 'https://mainnet.zklighter.elliot.ai';
+  const API_PRIVATE_KEY = process.env.API_PRIVATE_KEY || '';
+  const ACCOUNT_INDEX = parseInt(process.env.ACCOUNT_INDEX || '1000');
+  const API_KEY_INDEX = parseInt(process.env.API_KEY_INDEX || '4');
 
   const apiClient = new ApiClient({ host: BASE_URL });
   const signerClient = new SignerClient({
     url: BASE_URL,
     privateKey: API_PRIVATE_KEY,
     accountIndex: ACCOUNT_INDEX,
-    apiKeyIndex: API_KEY_INDEX
+    apiKeyIndex: API_KEY_INDEX,
   });
 
   try {
@@ -45,7 +45,7 @@ async function main() {
 
     // Use unique client order indices to avoid conflicts
     const baseIndex = Date.now();
-    const orderExpiry = Date.now() + (60 * 60 * 1000); // 1 hour from now
+    const orderExpiry = Date.now() + 60 * 60 * 1000; // 1 hour from now
 
     // First order - sign directly with WASM signer
     console.log(`📋 Signing first order...`);
@@ -61,9 +61,9 @@ async function main() {
         reduceOnly: 0,
         triggerPrice: SignerClient.NIL_TRIGGER_PRICE,
         orderExpiry: orderExpiry,
-        nonce: nonces[0]
+        nonce: nonces[0],
       });
-      
+
       txInfos.push(firstTxInfo);
       console.log(`✅ First order signed successfully`);
     } catch (firstError) {
@@ -86,9 +86,9 @@ async function main() {
         reduceOnly: 0,
         triggerPrice: SignerClient.NIL_TRIGGER_PRICE,
         orderExpiry: orderExpiry,
-        nonce: nonces[1]
+        nonce: nonces[1],
       });
-      
+
       txInfos.push(secondTxInfo);
       console.log(`✅ Second order signed successfully`);
     } catch (secondError) {
@@ -100,14 +100,14 @@ async function main() {
     // Send batch transaction
     console.log(`\n📡 Sending batch transaction...`);
     console.log(`   Batch size: ${txInfos.length} transactions`);
-    
+
     try {
       const transactionApi = new TransactionApi(apiClient);
       const batchResult = await transactionApi.sendTransactionBatch({
         tx_types: JSON.stringify(txTypes),
-        tx_infos: JSON.stringify(txInfos)
+        tx_infos: JSON.stringify(txInfos),
       });
-      
+
       if (batchResult.code && batchResult.code !== 200) {
         console.error(`❌ Batch transaction failed: ${batchResult.message || 'Unknown error'}`);
         await apiClient.close();
@@ -115,18 +115,18 @@ async function main() {
       }
 
       console.log(`✅ Batch transaction submitted successfully`);
-      
+
       if (batchResult.tx_hash && Array.isArray(batchResult.tx_hash)) {
         console.log(`\n📋 Transaction Hashes:`);
         batchResult.tx_hash.forEach((hash, index) => {
           console.log(`   Order ${index + 1}: ${hash.substring(0, 16)}...`);
         });
-        
+
         // Wait for all transactions
         console.log(`\n⏳ Waiting for confirmations...`);
         let successCount = 0;
         let failureCount = 0;
-        
+
         for (let i = 0; i < batchResult.tx_hash.length; i++) {
           const hash = batchResult.tx_hash[i];
           if (!hash || hash === '') {
@@ -134,7 +134,7 @@ async function main() {
             failureCount++;
             continue;
           }
-          
+
           try {
             await signerClient.waitForTransaction(hash, 30000, 2000);
             console.log(`✅ Transaction ${i + 1} confirmed`);
@@ -144,7 +144,7 @@ async function main() {
             failureCount++;
           }
         }
-        
+
         console.log(`\n📊 Batch Summary: ${successCount} succeeded, ${failureCount} failed`);
       } else {
         console.warn('⚠️ No transaction hashes returned from batch submission');
@@ -156,7 +156,6 @@ async function main() {
       console.error(`❌ Error sending batch transaction:`, e);
       await apiClient.close();
     }
-
   } catch (error) {
     console.error(`❌ Error:`, error);
     await apiClient.close();

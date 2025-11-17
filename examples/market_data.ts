@@ -13,7 +13,7 @@ async function fetchMarketData() {
 
   // Initialize clients explicitly
   const apiClient = new ApiClient({
-    host: process.env['BASE_URL'] || 'https://mainnet.zklighter.elliot.ai'
+    host: process.env['BASE_URL'] || 'https://mainnet.zklighter.elliot.ai',
   });
 
   const orderApi = new OrderApi(apiClient);
@@ -24,7 +24,7 @@ async function fetchMarketData() {
     try {
       const orderBookDetails = await orderApi.getOrderBookDetails({
         market_id: 0,
-        depth: 10
+        depth: 10,
       });
       console.log('✅ Order Book Details fetched successfully!');
       console.log(`   Market ID: ${orderBookDetails.market_id}`);
@@ -41,7 +41,7 @@ async function fetchMarketData() {
     try {
       const recentTrades = await orderApi.getRecentTrades({
         market_id: 0,
-        limit: 10
+        limit: 10,
       });
       console.log('✅ Recent Trades fetched successfully!');
       console.log(`   Trades: ${recentTrades?.length || 0} recent trades\n`);
@@ -64,7 +64,7 @@ async function fetchMarketData() {
     // 4. Fetch Multiple Markets Data
     console.log('🔍 Fetching Multiple Markets Data...');
     const markets: any = {};
-    
+
     // Get market data for IDs 0-10
     for (let marketId = 0; marketId <= 10; marketId++) {
       try {
@@ -77,7 +77,7 @@ async function fetchMarketData() {
             trades_24h: marketData.trades_24h,
             price_change_24h: marketData.price_change_24h,
             min_size: marketData.min_size,
-            status: marketData.status
+            status: marketData.status,
           };
           console.log(`✅ Market ${marketId} (${marketData.symbol}) found`);
         } else {
@@ -101,32 +101,32 @@ async function fetchMarketData() {
         console.log('📡 Received WebSocket message:', JSON.stringify(message, null, 2));
       },
       onClose: () => console.log('🔌 WebSocket closed'),
-      onError: (error) => console.error('❌ WebSocket error:', error)
+      onError: (error) => console.error('❌ WebSocket error:', error),
     });
 
     await wsClient.connect();
-    
+
     // Wait a bit for connection to stabilize
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     // Subscribe to order book updates using correct format
     wsClient.send({
       type: 'subscribe',
-      channel: 'order_book/0'
+      channel: 'order_book/0',
     });
     console.log('✅ Subscribed to order book updates for market 0');
-    
+
     // Subscribe to market stats
     wsClient.send({
       type: 'subscribe',
-      channel: 'market_stats/0'
+      channel: 'market_stats/0',
     });
     console.log('✅ Subscribed to market stats for market 0');
-    
+
     // Subscribe to trades
     wsClient.send({
       type: 'subscribe',
-      channel: 'trade/0'
+      channel: 'trade/0',
     });
     console.log('✅ Subscribed to trades for market 0');
 
@@ -135,7 +135,6 @@ async function fetchMarketData() {
       wsClient.disconnect();
       console.log('\n🎉 Market data fetching completed!');
     }, 10000);
-
   } catch (error) {
     console.error('❌ Error fetching market data:', error);
   } finally {
@@ -145,8 +144,11 @@ async function fetchMarketData() {
 
 async function getMarketData(marketId: number, orderApi: OrderApi): Promise<any> {
   try {
-    const details = await orderApi.getOrderBookDetails({ market_id: marketId, depth: 1 }) as any;
-    
+    const details = (await orderApi.getOrderBookDetails({
+      market_id: marketId,
+      depth: 1,
+    })) as any;
+
     if (details.order_book_details && details.order_book_details.length > 0) {
       const marketInfo = details.order_book_details[0];
       return {
@@ -157,13 +159,13 @@ async function getMarketData(marketId: number, orderApi: OrderApi): Promise<any>
         trades_24h: marketInfo.daily_trades_count,
         price_change_24h: marketInfo.daily_price_change,
         min_size: marketInfo.min_base_amount,
-        status: marketInfo.status
+        status: marketInfo.status,
       };
     }
   } catch (error) {
     return null;
   }
-  
+
   return null;
 }
 

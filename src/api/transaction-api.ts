@@ -1,5 +1,11 @@
 import { ApiClient } from './api-client';
-import { BlockParams, TransactionParams, PaginationParams, SendTransactionParams, SendTransactionBatchParams } from '../types';
+import {
+  BlockParams,
+  TransactionParams,
+  PaginationParams,
+  SendTransactionParams,
+  SendTransactionBatchParams,
+} from '../types';
 
 export interface Transaction {
   hash: string;
@@ -95,7 +101,9 @@ export class TransactionApi {
     return response.data;
   }
 
-  public async getBlockTransactions(params: BlockParams & PaginationParams): Promise<Transaction[]> {
+  public async getBlockTransactions(
+    params: BlockParams & PaginationParams
+  ): Promise<Transaction[]> {
     const { by, value, ...paginationParams } = params;
     const response = await this.client.get<Transaction[]>('/api/v1/blockTxs', {
       by,
@@ -105,7 +113,10 @@ export class TransactionApi {
     return response.data;
   }
 
-  public async getAccountTransactions(accountIndex: number, params?: PaginationParams): Promise<Transaction[]> {
+  public async getAccountTransactions(
+    accountIndex: number,
+    params?: PaginationParams
+  ): Promise<Transaction[]> {
     const response = await this.client.get<Transaction[]>('/api/v1/accountTxs', {
       account_index: accountIndex,
       ...params,
@@ -113,7 +124,10 @@ export class TransactionApi {
     return response.data;
   }
 
-  public async getAccountPendingTransactions(accountIndex: number, params?: PaginationParams): Promise<Transaction[]> {
+  public async getAccountPendingTransactions(
+    accountIndex: number,
+    params?: PaginationParams
+  ): Promise<Transaction[]> {
     const response = await this.client.get<Transaction[]>('/api/v1/accountPendingTxs', {
       account_index: accountIndex,
       ...params,
@@ -155,7 +169,12 @@ export class TransactionApi {
     return response.data;
   }
 
-  public async sendTxWithIndices(txType: number, txInfo: string, accountIndex: number, apiKeyIndex: number): Promise<TxHash> {
+  public async sendTxWithIndices(
+    txType: number,
+    txInfo: string,
+    accountIndex: number,
+    apiKeyIndex: number
+  ): Promise<TxHash> {
     const params = new URLSearchParams();
     params.append('tx_type', txType.toString());
     params.append('tx_info', txInfo);
@@ -165,13 +184,17 @@ export class TransactionApi {
     const response = await this.client.post<TxHash>('/api/v1/sendTx', params, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     });
-    
-    
+
     return response.data;
   }
 
   // JSON variant
-  public async sendTxJson(txType: number, txInfo: string, accountIndex: number, apiKeyIndex: number): Promise<TxHash> {
+  public async sendTxJson(
+    txType: number,
+    txInfo: string,
+    accountIndex: number,
+    apiKeyIndex: number
+  ): Promise<TxHash> {
     const payload = {
       tx_type: txType,
       tx_info: txInfo,
@@ -186,11 +209,10 @@ export class TransactionApi {
 
   public async sendTransactionBatch(params: SendTransactionBatchParams): Promise<TxHashes> {
     if (params.tx_types && params.tx_infos) {
-
       const urlParams = new URLSearchParams();
       urlParams.append('tx_types', params.tx_types);
       urlParams.append('tx_infos', params.tx_infos);
-      
+
       const response = await this.client.post<TxHashes>('/api/v1/sendTxBatch', urlParams, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
@@ -204,8 +226,10 @@ export class TransactionApi {
       });
       return response.data;
     }
-    
-    throw new Error('Invalid batch params: must provide either (tx_types, tx_infos) or (transactions)');
+
+    throw new Error(
+      'Invalid batch params: must provide either (tx_types, tx_infos) or (transactions)'
+    );
   }
 
   public async getTransactionFromL1TxHash(l1TxHash: string): Promise<Transaction> {

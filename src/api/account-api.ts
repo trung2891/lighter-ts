@@ -17,7 +17,7 @@ export interface Account {
   free_margin: string;
   margin_used: string;
   margin_ratio: string;
-  sub_accounts?: SubAccount[];  // List of subaccounts under this master account
+  sub_accounts?: SubAccount[]; // List of subaccounts under this master account
   positions: AccountPosition[];
   orders: Order[];
   trades: Trade[];
@@ -134,7 +134,10 @@ export class AccountApi {
     return response.data;
   }
 
-  public async getPnL(accountIndex: number, params?: { start_time?: number; end_time?: number }): Promise<any> {
+  public async getPnL(
+    accountIndex: number,
+    params?: { start_time?: number; end_time?: number }
+  ): Promise<any> {
     const response = await this.client.get('/api/v1/pnl', {
       account_index: accountIndex,
       ...params,
@@ -142,7 +145,11 @@ export class AccountApi {
     return response.data;
   }
 
-  public async getPublicPools(filter: string = 'all', limit: number = 10, index: number = 0): Promise<PublicPool[]> {
+  public async getPublicPools(
+    filter: string = 'all',
+    limit: number = 10,
+    index: number = 0
+  ): Promise<PublicPool[]> {
     const response = await this.client.get<PublicPool[]>('/api/v1/publicPools', {
       filter,
       limit,
@@ -151,7 +158,11 @@ export class AccountApi {
     return response.data;
   }
 
-  public async changeAccountTier(accountIndex: number, newTier: string, auth: string): Promise<any> {
+  public async changeAccountTier(
+    accountIndex: number,
+    newTier: string,
+    auth: string
+  ): Promise<any> {
     // Use form data as the API expects multipart/form-data
     const params = new URLSearchParams();
     params.append('account_index', accountIndex.toString());

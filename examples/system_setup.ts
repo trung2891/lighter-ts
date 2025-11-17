@@ -11,7 +11,7 @@ async function systemSetup() {
   try {
     // 1. Initialize clients explicitly
     console.log('🔧 Initializing Clients...');
-    
+
     // Validate required environment variables
     if (!process.env['PRIVATE_KEY']) {
       throw new Error('PRIVATE_KEY environment variable is required');
@@ -21,11 +21,11 @@ async function systemSetup() {
       url: process.env['LIGHTER_URL'] || 'https://mainnet.zklighter.elliot.ai',
       privateKey: process.env['PRIVATE_KEY'] || '',
       accountIndex: parseInt(process.env['ACCOUNT_INDEX'] || '0'),
-      apiKeyIndex: parseInt(process.env['API_KEY_INDEX'] || '0')
+      apiKeyIndex: parseInt(process.env['API_KEY_INDEX'] || '0'),
     });
 
     const apiClient = new ApiClient({
-      host: process.env['LIGHTER_URL'] || 'https://mainnet.zklighter.elliot.ai'
+      host: process.env['LIGHTER_URL'] || 'https://mainnet.zklighter.elliot.ai',
     });
 
     await signerClient.initialize();
@@ -43,7 +43,7 @@ async function systemSetup() {
     try {
       const accountInfo = await apiClient.get('/api/v1/account', {
         account_index: parseInt(process.env['ACCOUNT_INDEX'] || '0'),
-        auth: authToken
+        auth: authToken,
       });
       console.log('✅ Account Information fetched successfully!');
       console.log(`   Account Index: ${accountInfo.data.index}`);
@@ -95,7 +95,6 @@ async function systemSetup() {
 
     console.log('🎉 System Setup Completed Successfully!');
     console.log('✅ All components are ready for trading operations');
-
   } catch (error) {
     console.error('❌ Error during system setup:', error);
   }

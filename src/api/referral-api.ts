@@ -37,7 +37,7 @@ export class ReferralApi {
     authorization?: string
   ): Promise<ReferralPoints> {
     const params = new URLSearchParams({
-      account_index: accountIndex.toString()
+      account_index: accountIndex.toString(),
     });
 
     const headers: Record<string, string> = {};
@@ -46,7 +46,10 @@ export class ReferralApi {
       headers['auth'] = authorization;
     }
 
-    const response = await this.client.get<ReferralPoints>(`/api/v1/referral/points?${params}`, headers);
+    const response = await this.client.get<ReferralPoints>(
+      `/api/v1/referral/points?${params}`,
+      headers
+    );
     return response.data;
   }
 
@@ -61,7 +64,7 @@ export class ReferralApi {
     authorization?: string
   ): Promise<ApiResponse<ReferralPoints>> {
     const params = new URLSearchParams({
-      account_index: accountIndex.toString()
+      account_index: accountIndex.toString(),
     });
 
     const headers: Record<string, string> = {};

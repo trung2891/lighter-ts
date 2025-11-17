@@ -12,21 +12,21 @@ function trimException(e: Error): string {
 }
 
 async function createTWAPOrderWithSLTP() {
-  const API_PRIVATE_KEY = process.env['API_PRIVATE_KEY'] || "";
-  const ACCOUNT_INDEX = parseInt(process.env['ACCOUNT_INDEX'] || "1000");
-  const API_KEY_INDEX = parseInt(process.env['API_KEY_INDEX'] || "4");
+  const API_PRIVATE_KEY = process.env['API_PRIVATE_KEY'] || '';
+  const ACCOUNT_INDEX = parseInt(process.env['ACCOUNT_INDEX'] || '1000');
+  const API_KEY_INDEX = parseInt(process.env['API_KEY_INDEX'] || '4');
   const BASE_URL = process.env['BASE_URL'] || 'https://mainnet.zklighter.elliot.ai';
 
   const signerClient = new SignerClient({
     url: BASE_URL,
     privateKey: API_PRIVATE_KEY,
     accountIndex: ACCOUNT_INDEX,
-    apiKeyIndex: API_KEY_INDEX
+    apiKeyIndex: API_KEY_INDEX,
   });
 
   const apiClient = new ApiClient({ host: BASE_URL });
   const orderApi = new OrderApi(apiClient);
-  
+
   await signerClient.initialize();
   await signerClient.ensureWasmClient();
 
@@ -44,15 +44,15 @@ async function createTWAPOrderWithSLTP() {
     price: currentPriceInUnits,
     isAsk: false,
     orderType: OrderType.TWAP,
-    orderExpiry: Date.now() + (30 * 60 * 1000),
+    orderExpiry: Date.now() + 30 * 60 * 1000,
     stopLoss: {
       triggerPrice: market.priceToUnits(currentPriceInUnits * 0.95),
-      isLimit: false
+      isLimit: false,
     },
     takeProfit: {
       triggerPrice: market.priceToUnits(currentPriceInUnits * 1.05),
-      isLimit: false
-    }
+      isLimit: false,
+    },
   };
 
   try {
@@ -61,7 +61,7 @@ async function createTWAPOrderWithSLTP() {
     if (result.success) {
       console.log(`✓ TWAP order created: ${result.mainOrder.hash.substring(0, 16)}...`);
       console.log(`  Duration: 30 minutes`);
-      
+
       // Wait for main order
       try {
         await signerClient.waitForTransaction(result.mainOrder.hash, 30000, 2000);
@@ -69,7 +69,7 @@ async function createTWAPOrderWithSLTP() {
       } catch (error) {
         console.error(`❌ TWAP order failed: ${trimException(error as Error)}`);
       }
-      
+
       // Wait for SL/TP orders
       if (result.batchResult.hashes.length > 0) {
         console.log(`✓ ${result.batchResult.hashes.length} SL/TP order(s) pending`);

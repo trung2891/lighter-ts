@@ -23,11 +23,11 @@ async function main() {
     // Ensure signerclient initialized
     await signerClient.initialize();
     await signerClient.ensureWasmClient();
-    
+
     console.log(`✅ SignerClient initialized`);
     console.log(`📊 Account Index: ${ACCOUNT_INDEX}`);
     console.log(`🔑 API Key Index: ${API_KEY_INDEX}\n`);
-    
+
     // Initialize API clients
     const apiClient = new ApiClient({ host: BASE_URL });
     const accountApi = new AccountApi(apiClient);
@@ -44,7 +44,7 @@ async function main() {
     try {
       const upgradeResult = await accountApi.changeAccountTier(
         ACCOUNT_INDEX,
-        'premium',  // New tier
+        'premium', // New tier
         authToken
       );
       console.log(`✅ Successfully upgraded to PREMIUM tier!`);
@@ -55,14 +55,14 @@ async function main() {
     }
 
     // Wait a bit
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // Example 2: Revert back to Standard tier
     console.log('\n📉 Example 2: Reverting to STANDARD tier');
     try {
       const revertResult = await accountApi.changeAccountTier(
         ACCOUNT_INDEX,
-        'standard',  // New tier
+        'standard', // New tier
         authToken
       );
       console.log(`✅ Successfully reverted to STANDARD tier!`);
@@ -73,7 +73,6 @@ async function main() {
 
     console.log('\n✅ Account tier change examples completed!');
     console.log('\n💡 Note: Tier changes may require specific account conditions or fees.');
-
   } catch (error) {
     console.error('❌ Error:', error);
     process.exit(1);
@@ -81,4 +80,3 @@ async function main() {
 }
 
 main().catch(console.error);
-

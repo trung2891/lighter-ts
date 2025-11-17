@@ -34,7 +34,7 @@ export class WasmManager {
     }
 
     this.initializationPromise = this.doInitialize(config, clientType);
-    
+
     try {
       await this.initializationPromise;
     } finally {
@@ -82,7 +82,10 @@ export class WasmManager {
   }
 
   // Pre-initialize with default config for faster startup
-  static async preInitialize(config: WasmConfig, clientType: WasmClientType = 'node'): Promise<void> {
+  static async preInitialize(
+    config: WasmConfig,
+    clientType: WasmClientType = 'node'
+  ): Promise<void> {
     const manager = WasmManager.getInstance();
     await manager.initialize(config, clientType);
   }
@@ -96,7 +99,7 @@ export class WasmManager {
     return {
       isInitialized: this.isInitialized,
       hasClient: this.wasmClient !== null,
-      config: this.config
+      config: this.config,
     };
   }
 
@@ -122,4 +125,3 @@ export class WasmManager {
     WasmManager.instance = null;
   }
 }
-

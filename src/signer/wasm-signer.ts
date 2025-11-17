@@ -1,6 +1,6 @@
 /**
  * Unified WASM Signer Client for Lighter Protocol
- * 
+ *
  * This module provides a TypeScript wrapper for the Go WASM signer,
  * enabling cryptographic operations in both browser and Node.js environments.
  * Automatically detects the environment and uses the appropriate initialization method.
@@ -108,7 +108,9 @@ export class WasmSignerClient {
 
       this.isInitialized = true;
     } catch (error) {
-      throw new Error(`Failed to initialize WASM signer: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to initialize WASM signer: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -117,24 +119,27 @@ export class WasmSignerClient {
    */
   private async initializeBrowser(): Promise<void> {
     // Load the Go WASM runtime
-    const wasmExecPath = this.config.wasmExecPath || this.config.wasmPath?.replace('.wasm', '_exec.js') || 'wasm/wasm_exec.js';
+    const wasmExecPath =
+      this.config.wasmExecPath ||
+      this.config.wasmPath?.replace('.wasm', '_exec.js') ||
+      'wasm/wasm_exec.js';
     await this.loadScript(wasmExecPath);
 
     // Load the WASM binary
     const wasmPath = this.config.wasmPath || 'wasm/lighter-signer.wasm';
     const wasmBytes = await this.loadWasmBinary(wasmPath);
-    
+
     // Initialize the WASM runtime
     const Go = (window as any).Go;
     const go = new Go();
-    
+
     const result = await WebAssembly.instantiate(wasmBytes, go.importObject);
-    
+
     // Run the WASM module
     go.run(result.instance);
-    
+
     // Wait for functions to be registered
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Access the functions
     this.wasmModule = {
@@ -144,7 +149,8 @@ export class WasmSignerClient {
       signChangePubKey: (window as any).SignChangePubKey || (window as any).signChangePubKey,
       signCreateOrder: (window as any).SignCreateOrder || (window as any).signCreateOrder,
       signCancelOrder: (window as any).SignCancelOrder || (window as any).signCancelOrder,
-      signCancelAllOrders: (window as any).SignCancelAllOrders || (window as any).signCancelAllOrders,
+      signCancelAllOrders:
+        (window as any).SignCancelAllOrders || (window as any).signCancelAllOrders,
       signTransfer: (window as any).SignTransfer || (window as any).signTransfer,
       signWithdraw: (window as any).SignWithdraw || (window as any).signWithdraw,
       signUpdateLeverage: (window as any).SignUpdateLeverage || (window as any).signUpdateLeverage,
@@ -163,7 +169,9 @@ export class WasmSignerClient {
    */
   private async initializeNode(): Promise<void> {
     // Resolve WASM paths relative to package root if they're relative paths
-    const resolvedWasmPath = this.resolveWasmPath(this.config.wasmPath || 'wasm/lighter-signer.wasm');
+    const resolvedWasmPath = this.resolveWasmPath(
+      this.config.wasmPath || 'wasm/lighter-signer.wasm'
+    );
     let wasmExecPath = this.config.wasmExecPath;
 
     // Use bundled wasm_exec.js directly (no need for Go runtime)
@@ -179,26 +187,36 @@ export class WasmSignerClient {
     }
 
     if (!wasmExecPath) {
-      throw new Error('Unable to locate wasm_exec runtime. Bundled files not found and Go not installed. Please ensure wasm/wasm_exec.js exists in the package.');
+      throw new Error(
+        'Unable to locate wasm_exec runtime. Bundled files not found and Go not installed. Please ensure wasm/wasm_exec.js exists in the package.'
+      );
     }
 
     await this.loadWasmExec(wasmExecPath);
 
     // Load the WASM binary
     const wasmBytes = await this.loadWasmBinary(resolvedWasmPath);
-    
+
     // Initialize the WASM runtime
     const Go = (global as any).Go;
     const go = new Go();
-    
+
     // Build a compatible import object for both 'go' and 'gojs' module names
     const baseImport = go.importObject as any;
     const goModule = baseImport.go || baseImport.gojs;
     // Ensure aliases expected by our WASM are present
-    if (goModule && !goModule['syscall/js.copyBytesToGo'] && goModule['syscall/js.valueCopyBytesToGo']) {
+    if (
+      goModule &&
+      !goModule['syscall/js.copyBytesToGo'] &&
+      goModule['syscall/js.valueCopyBytesToGo']
+    ) {
       goModule['syscall/js.copyBytesToGo'] = goModule['syscall/js.valueCopyBytesToGo'];
     }
-    if (goModule && !goModule['syscall/js.copyBytesToJS'] && goModule['syscall/js.valueCopyBytesToJS']) {
+    if (
+      goModule &&
+      !goModule['syscall/js.copyBytesToJS'] &&
+      goModule['syscall/js.valueCopyBytesToJS']
+    ) {
       goModule['syscall/js.copyBytesToJS'] = goModule['syscall/js.valueCopyBytesToJS'];
     }
     const compatImportObject = {
@@ -208,7 +226,7 @@ export class WasmSignerClient {
     } as any;
 
     const result = await WebAssembly.instantiate(wasmBytes, compatImportObject);
-    
+
     // Set up the WASM runtime environment before running
     // Only pass essential environment variables to avoid exceeding WASM limits
     const essentialEnvVars: Record<string, string> = {
@@ -221,43 +239,81 @@ export class WasmSignerClient {
     // Limit argv to avoid exceeding length limits
     go.argv = ['js']; // Minimal argv
     go.exit = process.exit;
-    
+
     // Minimal globals (official runtime sets most as needed)
     (global as any).process = process;
     (global as any).console = console;
     (global as any).Buffer = Buffer;
-    
+
     // Keep a reference to the instance to prevent garbage collection
     this.wasmInstance = result.instance;
     // Also store globally to prevent GC
     (global as any).wasmInstance = result.instance;
     // Store the memory buffer globally to prevent detachment
     (global as any).wasmMemory = result.instance.exports['mem'];
-    
+
     // Run the WASM module using the standard runtime approach
     try {
       go.run(result.instance);
     } catch (runError) {
-      throw new Error(`WASM runtime failed: ${runError instanceof Error ? runError.message : String(runError)}`);
+      throw new Error(
+        `WASM runtime failed: ${runError instanceof Error ? runError.message : String(runError)}`
+      );
     }
 
     // Wait for functions to be registered
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Try multiple ways to access the functions (Go exports are capitalized)
     this.wasmModule = {
-      generateAPIKey: (global as any).GenerateAPIKey || (global as any).generateAPIKey || (global as any).lighterWasmFunctions?.generateAPIKey,
-      getPublicKey: (global as any).GetPublicKey || (global as any).getPublicKey || (global as any).lighterWasmFunctions?.getPublicKey,
-      createClient: (global as any).CreateClient || (global as any).createClient || (global as any).lighterWasmFunctions?.createClient,
-      signChangePubKey: (global as any).SignChangePubKey || (global as any).signChangePubKey || (global as any).lighterWasmFunctions?.signChangePubKey,
-      signCreateOrder: (global as any).SignCreateOrder || (global as any).signCreateOrder || (global as any).lighterWasmFunctions?.signCreateOrder,
-      signCancelOrder: (global as any).SignCancelOrder || (global as any).signCancelOrder || (global as any).lighterWasmFunctions?.signCancelOrder,
-      signCancelAllOrders: (global as any).SignCancelAllOrders || (global as any).signCancelAllOrders || (global as any).lighterWasmFunctions?.signCancelAllOrders,
-      signTransfer: (global as any).SignTransfer || (global as any).signTransfer || (global as any).lighterWasmFunctions?.signTransfer,
-      signWithdraw: (global as any).SignWithdraw || (global as any).signWithdraw || (global as any).lighterWasmFunctions?.signWithdraw,
-      signUpdateLeverage: (global as any).SignUpdateLeverage || (global as any).signUpdateLeverage || (global as any).lighterWasmFunctions?.signUpdateLeverage,
-      createAuthToken: (global as any).CreateAuthToken || (global as any).createAuthToken || (global as any).lighterWasmFunctions?.createAuthToken,
-      checkClient: (global as any).CheckClient || (global as any).checkClient || (global as any).lighterWasmFunctions?.checkClient,
+      generateAPIKey:
+        (global as any).GenerateAPIKey ||
+        (global as any).generateAPIKey ||
+        (global as any).lighterWasmFunctions?.generateAPIKey,
+      getPublicKey:
+        (global as any).GetPublicKey ||
+        (global as any).getPublicKey ||
+        (global as any).lighterWasmFunctions?.getPublicKey,
+      createClient:
+        (global as any).CreateClient ||
+        (global as any).createClient ||
+        (global as any).lighterWasmFunctions?.createClient,
+      signChangePubKey:
+        (global as any).SignChangePubKey ||
+        (global as any).signChangePubKey ||
+        (global as any).lighterWasmFunctions?.signChangePubKey,
+      signCreateOrder:
+        (global as any).SignCreateOrder ||
+        (global as any).signCreateOrder ||
+        (global as any).lighterWasmFunctions?.signCreateOrder,
+      signCancelOrder:
+        (global as any).SignCancelOrder ||
+        (global as any).signCancelOrder ||
+        (global as any).lighterWasmFunctions?.signCancelOrder,
+      signCancelAllOrders:
+        (global as any).SignCancelAllOrders ||
+        (global as any).signCancelAllOrders ||
+        (global as any).lighterWasmFunctions?.signCancelAllOrders,
+      signTransfer:
+        (global as any).SignTransfer ||
+        (global as any).signTransfer ||
+        (global as any).lighterWasmFunctions?.signTransfer,
+      signWithdraw:
+        (global as any).SignWithdraw ||
+        (global as any).signWithdraw ||
+        (global as any).lighterWasmFunctions?.signWithdraw,
+      signUpdateLeverage:
+        (global as any).SignUpdateLeverage ||
+        (global as any).signUpdateLeverage ||
+        (global as any).lighterWasmFunctions?.signUpdateLeverage,
+      createAuthToken:
+        (global as any).CreateAuthToken ||
+        (global as any).createAuthToken ||
+        (global as any).lighterWasmFunctions?.createAuthToken,
+      checkClient:
+        (global as any).CheckClient ||
+        (global as any).checkClient ||
+        (global as any).lighterWasmFunctions?.checkClient,
     };
 
     // Verify that the functions are available
@@ -271,12 +327,12 @@ export class WasmSignerClient {
    */
   async generateAPIKey(seed?: string): Promise<ApiKeyPair> {
     await this.ensureInitialized();
-    
+
     const result = this.wasmModule.generateAPIKey(seed);
     if (result.error) {
       throw new Error(`Failed to generate API key: ${result.error}`);
     }
-    
+
     return {
       privateKey: result.privateKey,
       publicKey: result.publicKey,
@@ -288,13 +344,13 @@ export class WasmSignerClient {
    */
   async getPublicKey(privateKey: string): Promise<string> {
     await this.ensureInitialized();
-    
+
     const result = this.wasmModule.getPublicKey(privateKey);
-    
+
     if (result.error) {
       throw new Error(`Failed to get public key: ${result.error}`);
     }
-    
+
     return result.publicKey;
   }
 
@@ -309,7 +365,7 @@ export class WasmSignerClient {
     expiredAt: number;
   }): Promise<{ txInfo: string; error?: string }> {
     await this.ensureInitialized();
-    
+
     const result = this.wasmModule.signChangePubKey(
       params.pubkey,
       params.l1Sig,
@@ -317,11 +373,11 @@ export class WasmSignerClient {
       params.nonce,
       params.expiredAt
     );
-    
+
     if (result.error) {
       return { txInfo: '', error: result.error };
     }
-    
+
     return { txInfo: result.txInfo };
   }
 
@@ -330,7 +386,7 @@ export class WasmSignerClient {
    */
   async createClient(params: CreateClientParams): Promise<void> {
     await this.ensureInitialized();
-    
+
     // Standalone signer: CreateClient(apiKeyPrivateKey, accountIndex, apiKeyIndex, chainId)
     const result = this.wasmModule.createClient(
       params.privateKey,
@@ -338,7 +394,7 @@ export class WasmSignerClient {
       params.apiKeyIndex,
       params.chainId
     );
-    
+
     if (result.error) {
       throw new Error(`Failed to create client: ${result.error}`);
     }
@@ -349,7 +405,7 @@ export class WasmSignerClient {
    */
   async signCreateOrder(params: CreateOrderParams): Promise<string> {
     await this.ensureInitialized();
-    
+
     const result = this.wasmModule.signCreateOrder(
       params.marketIndex,
       params.clientOrderIndex,
@@ -363,11 +419,11 @@ export class WasmSignerClient {
       params.orderExpiry,
       params.nonce
     );
-    
+
     if (result.error) {
       throw new Error(`Failed to sign create order: ${result.error}`);
     }
-    
+
     return result.txInfo;
   }
 
@@ -376,17 +432,17 @@ export class WasmSignerClient {
    */
   async signCancelOrder(params: CancelOrderParams): Promise<string> {
     await this.ensureInitialized();
-    
+
     const result = this.wasmModule.signCancelOrder(
       params.marketIndex,
       params.orderIndex,
       params.nonce
     );
-    
+
     if (result.error) {
       throw new Error(`Failed to sign cancel order: ${result.error}`);
     }
-    
+
     return result.txInfo;
   }
 
@@ -395,32 +451,34 @@ export class WasmSignerClient {
    */
   async createAuthToken(deadline?: number): Promise<string> {
     await this.ensureInitialized();
-    
+
     const result = this.wasmModule.createAuthToken(deadline);
-    
+
     if (result.error) {
       throw new Error(`Failed to create auth token: ${result.error}`);
     }
-    
+
     return result.authToken;
   }
 
   /**
    * Sign a cancel all orders transaction
    */
-  async signCancelAllOrders(params: CancelAllOrdersParams): Promise<{ txInfo: string; error?: string }> {
+  async signCancelAllOrders(
+    params: CancelAllOrdersParams
+  ): Promise<{ txInfo: string; error?: string }> {
     await this.ensureInitialized();
-    
+
     const result = this.wasmModule.signCancelAllOrders(
       params.timeInForce,
       params.time,
       params.nonce
     );
-    
+
     if (result.error) {
       return { txInfo: '', error: result.error };
     }
-    
+
     return { txInfo: result.txInfo };
   }
 
@@ -429,7 +487,7 @@ export class WasmSignerClient {
    */
   async signTransfer(params: TransferParams): Promise<{ txInfo: string; error?: string }> {
     await this.ensureInitialized();
-    
+
     const result = this.wasmModule.signTransfer(
       params.toAccountIndex,
       params.usdcAmount,
@@ -437,11 +495,11 @@ export class WasmSignerClient {
       params.memo,
       params.nonce
     );
-    
+
     if (result.error) {
       return { txInfo: '', error: result.error };
     }
-    
+
     return { txInfo: result.txInfo };
   }
 
@@ -450,36 +508,35 @@ export class WasmSignerClient {
    */
   async signWithdraw(params: WithdrawParams): Promise<{ txInfo: string; error?: string }> {
     await this.ensureInitialized();
-    
-    const result = this.wasmModule.signWithdraw(
-      params.usdcAmount,
-      params.nonce
-    );
-    
+
+    const result = this.wasmModule.signWithdraw(params.usdcAmount, params.nonce);
+
     if (result.error) {
       return { txInfo: '', error: result.error };
     }
-    
+
     return { txInfo: result.txInfo };
   }
 
   /**
    * Sign an update leverage transaction
    */
-  async signUpdateLeverage(params: UpdateLeverageParams): Promise<{ txInfo: string; error?: string }> {
+  async signUpdateLeverage(
+    params: UpdateLeverageParams
+  ): Promise<{ txInfo: string; error?: string }> {
     await this.ensureInitialized();
-    
+
     const result = this.wasmModule.signUpdateLeverage(
       params.marketIndex,
       params.fraction,
       params.marginMode,
       params.nonce
     );
-    
+
     if (result.error) {
       return { txInfo: '', error: result.error };
     }
-    
+
     return { txInfo: result.txInfo };
   }
 
@@ -520,7 +577,7 @@ export class WasmSignerClient {
   private async loadWasmExec(path: string): Promise<void> {
     try {
       let absolutePath: string = path;
-      
+
       if (!absolutePath.startsWith('/') && !absolutePath.includes(':')) {
         try {
           absolutePath = require.resolve(path, { paths: [process.cwd()] });
@@ -532,7 +589,7 @@ export class WasmSignerClient {
       // Directly require the wasm_exec.js file
       delete require.cache[absolutePath];
       const wasmExec = require(absolutePath);
-      
+
       // Set Go class on global object
       if (wasmExec && wasmExec.Go) {
         (global as any).Go = wasmExec.Go;
@@ -542,7 +599,9 @@ export class WasmSignerClient {
         throw new Error('Go class not found in wasm_exec.js');
       }
     } catch (error) {
-      throw new Error(`Failed to load wasm_exec.js: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to load wasm_exec.js: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -584,7 +643,7 @@ export class WasmSignerClient {
       let currentDir = process.cwd();
       const maxDepth = 10; // Prevent infinite loops
       let depth = 0;
-      
+
       while (currentDir && depth < maxDepth) {
         const packagePath = require('path').join(currentDir, 'node_modules', 'lighter-ts-sdk');
         if (fs.existsSync(packagePath)) {

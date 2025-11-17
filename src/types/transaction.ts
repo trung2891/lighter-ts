@@ -10,7 +10,7 @@ export enum TransactionStatus {
   COMMITTED = 2,
   EXECUTED = 3,
   FAILED = 4,
-  REJECTED = 5
+  REJECTED = 5,
 }
 
 // Transaction Types
@@ -21,7 +21,7 @@ export enum TransactionType {
   CREATE_ORDER = 15,
   CANCEL_ORDER = 16,
   CANCEL_ALL_ORDERS = 17,
-  CHANGE_PUBKEY = 18
+  CHANGE_PUBKEY = 18,
 }
 
 // Transaction Parameters

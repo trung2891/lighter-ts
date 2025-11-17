@@ -11,13 +11,13 @@ export enum OrderType {
   STOP_LOSS_LIMIT = 3,
   TAKE_PROFIT = 4,
   TAKE_PROFIT_LIMIT = 5,
-  TWAP = 6
+  TWAP = 6,
 }
 
 export enum TimeInForce {
   IMMEDIATE_OR_CANCEL = 0,
   GOOD_TILL_TIME = 1,
-  POST_ONLY = 2
+  POST_ONLY = 2,
 }
 
 // Order Interfaces
@@ -47,4 +47,3 @@ export interface CancelOrderParams {
   marketIndex: number;
   orderIndex: number;
 }
-

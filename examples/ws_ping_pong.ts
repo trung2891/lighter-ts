@@ -32,27 +32,38 @@ async function webSocketPingPongExample() {
       if (message.type === 'pong') {
         pongCount++;
         const pingLatency = Date.now() - lastPingTime;
-        console.log(`🏓 Pong received! Latency: ${pingLatency}ms (Ping: ${pingCount}, Pong: ${pongCount})`);
+        console.log(
+          `🏓 Pong received! Latency: ${pingLatency}ms (Ping: ${pingCount}, Pong: ${pongCount})`
+        );
       } else if (message.type === 'ping') {
         // Respond to server ping with pong
         wsClient.send({ type: 'pong' });
         console.log('🏓 Responded to server ping with pong');
       } else if (message.type === 'update/order_book') {
         // Handle order book updates (but don't log every one to avoid spam)
-        if (message.offset % 100 === 0) { // Log every 100th update
-          console.log(`📊 Order Book Update #${message.offset} (${Math.floor((Date.now() - connectionStartTime) / 1000)}s connected)`);
+        if (message.offset % 100 === 0) {
+          // Log every 100th update
+          console.log(
+            `📊 Order Book Update #${message.offset} (${Math.floor((Date.now() - connectionStartTime) / 1000)}s connected)`
+          );
         }
       } else if (message.type === 'update/market_stats') {
-        console.log(`📈 Market Stats: Price ${message.market_stats?.last_trade_price} (${Math.floor((Date.now() - connectionStartTime) / 1000)}s connected)`);
+        console.log(
+          `📈 Market Stats: Price ${message.market_stats?.last_trade_price} (${Math.floor((Date.now() - connectionStartTime) / 1000)}s connected)`
+        );
       } else if (message.type === 'update/trade') {
         if (message.trades?.length > 0) {
           const trade = message.trades[0];
-          console.log(`💱 Trade: ${trade.size} @ ${trade.price} (${Math.floor((Date.now() - connectionStartTime) / 1000)}s connected)`);
+          console.log(
+            `💱 Trade: ${trade.size} @ ${trade.price} (${Math.floor((Date.now() - connectionStartTime) / 1000)}s connected)`
+          );
         }
       } else if (message.type === 'connected') {
         console.log(`🔗 Connection established with session: ${message.session_id}`);
       } else {
-        console.log(`📡 Message: ${message.type} (${Math.floor((Date.now() - connectionStartTime) / 1000)}s connected)`);
+        console.log(
+          `📡 Message: ${message.type} (${Math.floor((Date.now() - connectionStartTime) / 1000)}s connected)`
+        );
       }
     },
     onClose: () => {
@@ -62,34 +73,34 @@ async function webSocketPingPongExample() {
     onError: (error) => {
       console.error('❌ WebSocket error:', error);
       isAlive = false;
-    }
+    },
   });
 
   try {
     // Connect to WebSocket
     await wsClient.connect();
-    
+
     // Wait for connection to stabilize
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     // Subscribe to order book for ETH market (market 0)
     wsClient.send({
       type: 'subscribe',
-      channel: 'order_book/0'
+      channel: 'order_book/0',
     });
     console.log('✅ Subscribed to order book for market 0 (ETH)');
-    
+
     // Subscribe to market stats for ETH
     wsClient.send({
       type: 'subscribe',
-      channel: 'market_stats/0'
+      channel: 'market_stats/0',
     });
     console.log('✅ Subscribed to market stats for market 0 (ETH)');
-    
+
     // Subscribe to trades for ETH
     wsClient.send({
       type: 'subscribe',
-      channel: 'trade/0'
+      channel: 'trade/0',
     });
     console.log('✅ Subscribed to trades for market 0 (ETH)');
 
@@ -100,7 +111,7 @@ async function webSocketPingPongExample() {
         lastPingTime = Date.now();
         wsClient.send({ type: 'ping' });
         pingCount++;
-        
+
         const uptime = Math.floor((Date.now() - connectionStartTime) / 1000);
         console.log(`🏓 Ping sent (${pingCount}) - Uptime: ${uptime}s`);
       }
@@ -110,8 +121,10 @@ async function webSocketPingPongExample() {
     const healthInterval = setInterval(() => {
       if (isAlive) {
         const uptime = Math.floor((Date.now() - connectionStartTime) / 1000);
-        console.log(`💓 Connection Health - Uptime: ${uptime}s, Pings: ${pingCount}, Pongs: ${pongCount}`);
-        
+        console.log(
+          `💓 Connection Health - Uptime: ${uptime}s, Pings: ${pingCount}, Pongs: ${pongCount}`
+        );
+
         // Check if we're getting pongs back
         if (pingCount > pongCount + 2) {
           console.log('⚠️  Warning: Missing pongs detected, connection may be unstable');
@@ -123,18 +136,21 @@ async function webSocketPingPongExample() {
     setTimeout(async () => {
       clearInterval(pingInterval);
       clearInterval(healthInterval);
-      
+
       console.log('\n📊 Ping-Pong Summary:');
-      console.log(`   Total connection time: ${Math.floor((Date.now() - connectionStartTime) / 1000)}s`);
+      console.log(
+        `   Total connection time: ${Math.floor((Date.now() - connectionStartTime) / 1000)}s`
+      );
       console.log(`   Total pings sent: ${pingCount}`);
       console.log(`   Total pongs received: ${pongCount}`);
-      console.log(`   Ping success rate: ${pongCount > 0 ? Math.round((pongCount / pingCount) * 100) : 0}%`);
+      console.log(
+        `   Ping success rate: ${pongCount > 0 ? Math.round((pongCount / pingCount) * 100) : 0}%`
+      );
       console.log(`   Connection status: ${isAlive ? 'Alive' : 'Closed'}`);
-      
+
       await wsClient.disconnect();
       console.log('🎉 Ping-Pong WebSocket example completed!');
     }, 300000); // 5 minutes
-
   } catch (error) {
     console.error('❌ Error:', error);
     await wsClient.disconnect();
@@ -172,12 +188,12 @@ async function advancedPingPongExample() {
       }
     },
     onClose: () => console.log('🔌 Advanced WebSocket closed'),
-    onError: (error) => console.error('❌ Advanced WebSocket error:', error)
+    onError: (error) => console.error('❌ Advanced WebSocket error:', error),
   });
 
   try {
     await wsClient.connect();
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Subscribe to data
     wsClient.send({ type: 'subscribe', channel: 'order_book/0' });
@@ -198,9 +214,9 @@ async function advancedPingPongExample() {
       wsClient.send({ type: 'ping' });
       customPingCount++;
       missedPongs++;
-      
+
       console.log(`🏓 Custom Ping sent (${customPingCount}) - Interval: ${pingInterval}ms`);
-      
+
       // Adaptive ping interval based on missed pongs
       if (missedPongs === 0) {
         pingInterval = Math.max(10000, pingInterval - 1000); // Decrease interval if no missed pongs
@@ -216,11 +232,10 @@ async function advancedPingPongExample() {
       console.log(`   Custom pings sent: ${customPingCount}`);
       console.log(`   Custom pongs received: ${customPongCount}`);
       console.log(`   Missed pongs: ${missedPongs}`);
-      
+
       wsClient.disconnect();
       console.log('🎉 Advanced Ping-Pong example completed!');
     }, 30000); // 30 seconds for testing
-
   } catch (error) {
     console.error('❌ Advanced example error:', error);
     await wsClient.disconnect();
@@ -233,9 +248,9 @@ if (require.main === module) {
   console.log('1. Basic Ping-Pong Example (5 minutes)');
   console.log('2. Advanced Ping-Pong Example (2 minutes)');
   console.log('3. Run both examples sequentially');
-  
+
   const choice = process.argv[2] || '1';
-  
+
   switch (choice) {
     case '1':
       webSocketPingPongExample().catch(console.error);

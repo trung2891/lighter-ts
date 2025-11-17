@@ -12,22 +12,14 @@ async function createApiKey() {
   console.log('🔑 Creating API Key...\n');
 
   try {
-    // // Validate required environment variables
-    // if (!process.env["PRIVATE_KEY"]) {
-    //   throw new Error("PRIVATE_KEY environment variable is required");
-    // }
-    // if (!process.env["ETH_PRIVATE_KEY"]) {
-    //   throw new Error(
-    //     "ETH_PRIVATE_KEY environment variable is required (L1 Ethereum private key)"
-    //   );
-    // }
+    // Validate required environment variables
 
-    const apiKey = process.env['PRIVATE_KEY'] || '';
+    const apiKey = process.env['API_PRIVATE_KEY'] || '';
     const ethPrivateKey = process.env['ETH_PRIVATE_KEY'] || '';
 
     const accountIndex = 436063;
-    const apiKeyIndex = 10;
-    const newApiKeyIndex = 10;
+    const apiKeyIndex = 11;
+    const newApiKeyIndex = 11;
     const baseUrl = 'https://mainnet.zklighter.elliot.ai';
 
     // Initialize signer client with existing credentials

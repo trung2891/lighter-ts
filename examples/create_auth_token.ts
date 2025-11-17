@@ -12,9 +12,9 @@ async function createAuthToken() {
   console.log('Creating Auth Token...');
 
   // Use environment variables for configuration
-  const API_PRIVATE_KEY = process.env['API_PRIVATE_KEY'] || "";
-  const ACCOUNT_INDEX = parseInt(process.env['ACCOUNT_INDEX'] || "1000");
-  const API_KEY_INDEX = parseInt(process.env['API_KEY_INDEX'] || "4");
+  const API_PRIVATE_KEY = process.env['API_PRIVATE_KEY'] || '';
+  const ACCOUNT_INDEX = parseInt(process.env['ACCOUNT_INDEX'] || '1000');
+  const API_KEY_INDEX = parseInt(process.env['API_KEY_INDEX'] || '4');
   const BASE_URL = process.env['BASE_URL'] || 'https://mainnet.zklighter.elliot.ai';
 
   // Validate required environment variables
@@ -26,7 +26,7 @@ async function createAuthToken() {
     url: BASE_URL,
     privateKey: API_PRIVATE_KEY,
     accountIndex: ACCOUNT_INDEX,
-    apiKeyIndex: API_KEY_INDEX
+    apiKeyIndex: API_KEY_INDEX,
   });
 
   await signerClient.initialize();
@@ -36,14 +36,13 @@ async function createAuthToken() {
     // Create short-lived auth token (default ~10 minutes)
     const authToken = await signerClient.createAuthToken();
     console.log(`Auth token created: ${authToken.substring(0, 50)}...`);
-    
+
     // Create custom duration token (1 hour)
     const oneHourInSeconds = 60 * 60;
     const longToken = await signerClient.createAuthTokenWithExpiry(oneHourInSeconds);
     console.log(`1-hour token created: ${longToken.substring(0, 50)}...`);
 
     console.log('Auth tokens created successfully');
-
   } catch (error) {
     console.error('Error creating auth token:', error);
   }

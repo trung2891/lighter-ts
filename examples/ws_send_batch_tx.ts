@@ -16,12 +16,12 @@ async function webSocketSendBatchTransactionExample() {
     url: process.env['BASE_URL'] || 'https://mainnet.zklighter.elliot.ai',
     privateKey: process.env['API_PRIVATE_KEY'] || '',
     accountIndex: parseInt(process.env['ACCOUNT_INDEX'] || '0'),
-    apiKeyIndex: parseInt(process.env['API_KEY_INDEX'] || '0')
+    apiKeyIndex: parseInt(process.env['API_KEY_INDEX'] || '0'),
   });
 
   // Initialize API client for transaction monitoring
   const apiClient = new ApiClient({
-    host: process.env['BASE_URL'] || 'https://mainnet.zklighter.elliot.ai'
+    host: process.env['BASE_URL'] || 'https://mainnet.zklighter.elliot.ai',
   });
 
   // Validate required environment variables
@@ -36,7 +36,7 @@ async function webSocketSendBatchTransactionExample() {
 
     // Create multiple orders for batch sending
     const orders: Array<{ tx_type: number; tx_info: string }> = [];
-    
+
     // Order 1: Market buy order for ETH
     const [order1Info, txHash1, error1] = await signerClient.createOrder({
       marketIndex: 0, // ETH market
@@ -46,13 +46,13 @@ async function webSocketSendBatchTransactionExample() {
       isAsk: false, // Buy order
       orderType: 1, // Market order
       orderExpiry: 0, // Immediate execution for market orders
-      timeInForce: 0 // IMMEDIATE_OR_CANCEL for market orders
+      timeInForce: 0, // IMMEDIATE_OR_CANCEL for market orders
     });
 
     if (!error1 && txHash1) {
       orders.push({
         tx_type: 1, // Create order transaction type
-        tx_info: txHash1
+        tx_info: txHash1,
       });
       console.log('✅ Order 1 created successfully');
     }
@@ -65,14 +65,14 @@ async function webSocketSendBatchTransactionExample() {
       price: 400000, // Limit price
       isAsk: true, // Sell order
       orderType: 0, // Limit order
-      orderExpiry: Date.now() + (24 * 60 * 60 * 1000), // 24 hours in milliseconds
-      timeInForce: 1 // GOOD_TILL_TIME for limit orders
+      orderExpiry: Date.now() + 24 * 60 * 60 * 1000, // 24 hours in milliseconds
+      timeInForce: 1, // GOOD_TILL_TIME for limit orders
     });
 
     if (!error2 && txHash2) {
       orders.push({
         tx_type: 1, // Create order transaction type
-        tx_info: txHash2
+        tx_info: txHash2,
       });
       console.log('✅ Order 2 created successfully');
     }
@@ -84,13 +84,13 @@ async function webSocketSendBatchTransactionExample() {
       fee: 0,
       memo: 'a'.repeat(32),
       ethPrivateKey: process.env['API_PRIVATE_KEY'] || '',
-      nonce: -1
+      nonce: -1,
     });
 
     if (!transferError && transferTxHash) {
       orders.push({
         tx_type: 3, // Transfer transaction type
-        tx_info: transferTxHash
+        tx_info: transferTxHash,
       });
       console.log('✅ Transfer created successfully');
     }
@@ -103,9 +103,9 @@ async function webSocketSendBatchTransactionExample() {
     const batchMessage = {
       type: 'jsonapi/sendtxbatch',
       data: {
-        tx_types: `[${orders.map(o => o.tx_type).join(',')}]`,
-        tx_infos: `[${orders.map(o => `"${o.tx_info}"`).join(',')}]`
-      }
+        tx_types: `[${orders.map((o) => o.tx_type).join(',')}]`,
+        tx_infos: `[${orders.map((o) => `"${o.tx_info}"`).join(',')}]`,
+      },
     };
 
     console.log('\n📡 Sending batch transactions via WebSocket...');
@@ -125,7 +125,7 @@ async function webSocketSendBatchTransactionExample() {
       try {
         const transactionResult = await transactionApi.getTransaction({
           by: 'hash',
-          value: order.tx_info
+          value: order.tx_info,
         });
 
         console.log(`✅ Transaction ${i + 1} status:`);
@@ -137,7 +137,6 @@ async function webSocketSendBatchTransactionExample() {
         console.log(`❌ Transaction ${i + 1} monitoring failed:`, error);
       }
     }
-
   } catch (error) {
     console.error('❌ Error:', error);
   } finally {

@@ -67,12 +67,15 @@ export class WebSocketOrderClient extends EventEmitter {
   private config: WsConnectionConfig;
   private isConnected = false;
   private reconnectAttempts = 0;
-  private pendingRequests = new Map<string, {
-    resolve: (value: any) => void;
-    reject: (error: Error) => void;
-    timeout: NodeJS.Timeout;
-    timestamp: number;
-  }>();
+  private pendingRequests = new Map<
+    string,
+    {
+      resolve: (value: any) => void;
+      reject: (error: Error) => void;
+      timeout: NodeJS.Timeout;
+      timestamp: number;
+    }
+  >();
   private heartbeatTimer: NodeJS.Timeout | null = null;
   private reconnectTimer: NodeJS.Timeout | null = null;
   private messageId = 0;
@@ -84,7 +87,7 @@ export class WebSocketOrderClient extends EventEmitter {
       maxReconnectAttempts: 10,
       heartbeatInterval: 30000,
       timeout: 10000,
-      ...config
+      ...config,
     };
   }
 
@@ -92,7 +95,8 @@ export class WebSocketOrderClient extends EventEmitter {
     return new Promise((resolve, reject) => {
       try {
         // Use the official Lighter WebSocket endpoint
-        const wsUrl = this.config.url.replace('https://', 'wss://').replace('http://', 'ws://') + '/stream';
+        const wsUrl =
+          this.config.url.replace('https://', 'wss://').replace('http://', 'ws://') + '/stream';
         this.ws = new WebSocket(wsUrl);
 
         this.ws.on('open', () => {
@@ -128,7 +132,6 @@ export class WebSocketOrderClient extends EventEmitter {
             reject(new Error('WebSocket connection timeout'));
           }
         }, this.config.timeout);
-
       } catch (error) {
         reject(error);
       }
@@ -138,7 +141,7 @@ export class WebSocketOrderClient extends EventEmitter {
   private handleMessage(data: WebSocket.Data): void {
     try {
       const response: WsOrderResponse = JSON.parse(data.toString());
-      
+
       // Handle heartbeat response
       if (response.type === 'PONG') {
         return;
@@ -203,7 +206,7 @@ export class WebSocketOrderClient extends EventEmitter {
 
     try {
       const requestId = `tx_${Date.now()}_${++this.messageId}`;
-      
+
       const request: WsOrderRequest = {
         id: requestId,
         type: 'SEND_TX',
@@ -211,10 +214,10 @@ export class WebSocketOrderClient extends EventEmitter {
           type: 'jsonapi/sendtx',
           data: {
             tx_type: txType,
-            tx_info: txInfo
-          }
+            tx_info: txInfo,
+          },
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
 
       const result = await this.sendRequest(request);
@@ -223,7 +226,10 @@ export class WebSocketOrderClient extends EventEmitter {
     }
   }
 
-  async sendBatchTransactions(txTypes: number[], txInfos: string[]): Promise<LighterWsTransaction[]> {
+  async sendBatchTransactions(
+    txTypes: number[],
+    txInfos: string[]
+  ): Promise<LighterWsTransaction[]> {
     if (!this.isConnected || !this.ws || this.ws.readyState !== WebSocket.OPEN) {
       throw new Error('WebSocket not connected');
     }
@@ -240,7 +246,7 @@ export class WebSocketOrderClient extends EventEmitter {
 
     try {
       const requestId = `batch_${Date.now()}_${++this.messageId}`;
-      
+
       const request: WsOrderRequest = {
         id: requestId,
         type: 'SEND_BATCH_TX',
@@ -248,10 +254,10 @@ export class WebSocketOrderClient extends EventEmitter {
           type: 'jsonapi/sendtxbatch',
           data: {
             tx_types: txTypes,
-            tx_infos: txInfos
-          }
+            tx_infos: txInfos,
+          },
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
 
       const result = await this.sendRequest(request);
@@ -269,7 +275,7 @@ export class WebSocketOrderClient extends EventEmitter {
 
     try {
       const requestId = `batch_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
+
       const request: WsOrderRequest = {
         id: requestId,
         type: 'SEND_BATCH_TX',
@@ -277,10 +283,10 @@ export class WebSocketOrderClient extends EventEmitter {
           type: 'jsonapi/sendtxbatch',
           data: {
             tx_types: orders.map(() => 14), // TX_TYPE_CREATE_ORDER for all
-            tx_infos: orders // Assuming orders are already signed tx_infos
-          }
+            tx_infos: orders, // Assuming orders are already signed tx_infos
+          },
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
 
       const result = await this.sendRequest(request);
@@ -302,7 +308,7 @@ export class WebSocketOrderClient extends EventEmitter {
         resolve,
         reject,
         timeout,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
 
       // Send request
@@ -357,7 +363,7 @@ export class WebSocketOrderClient extends EventEmitter {
     return {
       isConnected: this.isConnected,
       pendingRequests: this.pendingRequests.size,
-      reconnectAttempts: this.reconnectAttempts
+      reconnectAttempts: this.reconnectAttempts,
     };
   }
 }

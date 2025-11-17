@@ -38,7 +38,9 @@ async function main() {
       console.log(`✅ API key verified (auth token created)\n`);
     } catch (error) {
       console.error(`❌ Failed to verify API key: ${error}`);
-      console.log(`\n💡 Hint: Make sure API key index ${API_KEY_INDEX} exists for account ${ACCOUNT_INDEX}`);
+      console.log(
+        `\n💡 Hint: Make sure API key index ${API_KEY_INDEX} exists for account ${ACCOUNT_INDEX}`
+      );
       console.log(`   You can create API keys using the frontend or the changeApiKey method.\n`);
       return;
     }
@@ -48,7 +50,7 @@ async function main() {
     const [crossLeverageInfo, crossTxHash, crossError] = await signerClient.updateLeverage(
       MARKET_INDEX,
       SignerClient.CROSS_MARGIN_MODE,
-      3  // 3x leverage
+      3 // 3x leverage
     );
 
     if (crossError) {
@@ -60,18 +62,18 @@ async function main() {
     }
 
     // Wait a bit before next update
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // Example 2: Update to Isolated Margin with 5x leverage
     console.log('\n📈 Example 2: Setting ISOLATED margin mode with 20x leverage');
     console.log(`Market Index: ${MARKET_INDEX}`);
     console.log(`Margin Mode: ${SignerClient.ISOLATED_MARGIN_MODE} (1 = ISOLATED, 0 = CROSS)`);
     console.log(`Leverage: 20x (IMF: ${Math.floor(10000 / 20)})`);
-    
+
     const [isolatedLeverageInfo, isolatedTxHash, isolatedError] = await signerClient.updateLeverage(
       MARKET_INDEX,
       SignerClient.ISOLATED_MARGIN_MODE,
-      20  // 20x leverage
+      50 // 20x leverage
     );
 
     if (isolatedError) {
@@ -87,7 +89,7 @@ async function main() {
     const [revertInfo, revertTxHash, revertError] = await signerClient.updateLeverage(
       MARKET_INDEX,
       SignerClient.CROSS_MARGIN_MODE,
-      2  // 2x leverage
+      2 // 2x leverage
     );
 
     if (revertError) {
@@ -99,7 +101,6 @@ async function main() {
     }
 
     console.log('\n✅ Leverage update examples completed!');
-
   } catch (error) {
     console.error('❌ Error:', error);
     process.exit(1);
@@ -107,4 +108,3 @@ async function main() {
 }
 
 main().catch(console.error);
-

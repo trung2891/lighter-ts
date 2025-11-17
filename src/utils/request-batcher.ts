@@ -24,11 +24,14 @@ export interface BatchConfig {
 
 export class RequestBatcher {
   private config: BatchConfig;
-  private pendingRequests = new Map<string, {
-    resolve: (value: any) => void;
-    reject: (error: Error) => void;
-    timestamp: number;
-  }>();
+  private pendingRequests = new Map<
+    string,
+    {
+      resolve: (value: any) => void;
+      reject: (error: Error) => void;
+      timestamp: number;
+    }
+  >();
   private batchQueue: BatchRequest[] = [];
   private flushTimer: NodeJS.Timeout | null = null;
   private isProcessing = false;
@@ -41,26 +44,29 @@ export class RequestBatcher {
       maxBatchSize: 10,
       maxWaitTime: 50, // 50ms max wait time
       flushInterval: 25, // 25ms flush interval
-      ...config
+      ...config,
     };
   }
 
-  async addRequest(type: 'CREATE_ORDER' | 'CANCEL_ORDER' | 'MODIFY_ORDER', params: any): Promise<any> {
+  async addRequest(
+    type: 'CREATE_ORDER' | 'CANCEL_ORDER' | 'MODIFY_ORDER',
+    params: any
+  ): Promise<any> {
     return new Promise((resolve, reject) => {
       const requestId = `${type.toLowerCase()}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
+
       const request: BatchRequest = {
         id: requestId,
         type,
         params,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
 
       // Store pending request
       this.pendingRequests.set(requestId, {
         resolve,
         reject,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
 
       // Add to batch queue
@@ -136,10 +142,9 @@ export class RequestBatcher {
           pending.reject(new Error('No response received for batch request'));
         }
       }
-      
     } catch (error) {
       // Batch processing failed
-      
+
       // Reject all pending requests in this batch
       for (const request of currentBatch) {
         const pending = this.pendingRequests.get(request.id);
@@ -172,7 +177,7 @@ export class RequestBatcher {
     return {
       pendingRequests: this.pendingRequests.size,
       batchQueue: this.batchQueue.length,
-      isProcessing: this.isProcessing
+      isProcessing: this.isProcessing,
     };
   }
 
@@ -184,7 +189,7 @@ export class RequestBatcher {
     }
 
     // Reject all pending requests
-      for (const [, pending] of Array.from(this.pendingRequests.entries())) {
+    for (const [, pending] of Array.from(this.pendingRequests.entries())) {
       pending.reject(new Error('RequestBatcher destroyed'));
     }
     this.pendingRequests.clear();
@@ -213,7 +218,7 @@ export function createHFTBatcher(
   return new RequestBatcher(batchProcessor, {
     maxBatchSize: 5, // Smaller batches for lower latency
     maxWaitTime: 10, // 10ms max wait
-    flushInterval: 5  // 5ms flush interval
+    flushInterval: 5, // 5ms flush interval
   });
 }
 
@@ -224,6 +229,6 @@ export function createGeneralBatcher(
   return new RequestBatcher(batchProcessor, {
     maxBatchSize: 20, // Larger batches for efficiency
     maxWaitTime: 100, // 100ms max wait
-    flushInterval: 50 // 50ms flush interval
+    flushInterval: 50, // 50ms flush interval
   });
 }

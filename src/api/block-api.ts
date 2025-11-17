@@ -37,4 +37,4 @@ export class BlockApi {
     const response = await this.client.get(`/block/current-height`);
     return response.data;
   }
-} 
+}

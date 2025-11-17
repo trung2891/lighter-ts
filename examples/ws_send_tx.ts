@@ -16,12 +16,12 @@ async function webSocketSendTransactionExample() {
     url: process.env['BASE_URL'] || 'https://mainnet.zklighter.elliot.ai',
     privateKey: process.env['API_PRIVATE_KEY'] || '',
     accountIndex: parseInt(process.env['ACCOUNT_INDEX'] || '0'),
-    apiKeyIndex: parseInt(process.env['API_KEY_INDEX'] || '0')
+    apiKeyIndex: parseInt(process.env['API_KEY_INDEX'] || '0'),
   });
 
   // Initialize API client for transaction monitoring
   const apiClient = new ApiClient({
-    host: process.env['BASE_URL'] || 'https://mainnet.zklighter.elliot.ai'
+    host: process.env['BASE_URL'] || 'https://mainnet.zklighter.elliot.ai',
   });
 
   // Validate required environment variables
@@ -43,7 +43,7 @@ async function webSocketSendTransactionExample() {
       isAsk: false, // Buy order
       orderType: 1, // Market order
       orderExpiry: 0, // Immediate execution for market orders
-      timeInForce: 0 // IMMEDIATE_OR_CANCEL for market orders
+      timeInForce: 0, // IMMEDIATE_OR_CANCEL for market orders
     });
 
     if (error) {
@@ -58,8 +58,8 @@ async function webSocketSendTransactionExample() {
       type: 'jsonapi/sendtx',
       data: {
         tx_type: 1, // Create order transaction type
-        tx_info: txHash // The signed transaction hash
-      }
+        tx_info: txHash, // The signed transaction hash
+      },
     };
 
     console.log('\n📡 Sending transaction via WebSocket...');
@@ -75,13 +75,12 @@ async function webSocketSendTransactionExample() {
     const transactionApi = new TransactionApi(apiClient);
     const transactionResult = await transactionApi.getTransaction({
       by: 'hash',
-      value: txHash
+      value: txHash,
     });
 
     console.log('✅ Transaction status retrieved');
     console.log(`   Status: ${transactionResult.status}`);
     console.log(`   Block Height: ${transactionResult.block_height || 'Pending'}`);
-
   } catch (error) {
     console.error('❌ Error:', error);
   } finally {

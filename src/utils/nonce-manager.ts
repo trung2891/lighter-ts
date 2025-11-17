@@ -23,25 +23,23 @@ export class NonceManager {
     this.config = {
       batchSize: 20,
       maxCacheAge: 30000, // 30 seconds
-      ...config
+      ...config,
     };
 
     this.transactionApi = new TransactionApi(apiClient);
-    
-    this.nonceCache = new NonceCache(
-      async (apiKeyIndex: number, count: number) => {
-        const firstNonceResult = await this.transactionApi.getNextNonce(
-          this.config.accountIndex,
-          apiKeyIndex
-        );
-        
-        const nonces: number[] = [];
-        for (let i = 0; i < count; i++) {
-          nonces.push(firstNonceResult.nonce + i);
-        }
-        return nonces;
+
+    this.nonceCache = new NonceCache(async (apiKeyIndex: number, count: number) => {
+      const firstNonceResult = await this.transactionApi.getNextNonce(
+        this.config.accountIndex,
+        apiKeyIndex
+      );
+
+      const nonces: number[] = [];
+      for (let i = 0; i < count; i++) {
+        nonces.push(firstNonceResult.nonce + i);
       }
-    );
+      return nonces;
+    });
   }
 
   /**
@@ -107,9 +105,11 @@ export class NonceManager {
   isNonceError(error: any): boolean {
     if (!error) return false;
     const message = error.message || error.toString() || '';
-    return message.toLowerCase().includes('invalid nonce') || 
-           message.toLowerCase().includes('nonce') ||
-           (error.status === 400 && message.includes('nonce'));
+    return (
+      message.toLowerCase().includes('invalid nonce') ||
+      message.toLowerCase().includes('nonce') ||
+      (error.status === 400 && message.includes('nonce'))
+    );
   }
 
   /**
@@ -130,10 +130,7 @@ export class NonceManager {
 /**
  * Factory function to create a nonce manager
  */
-export function createNonceManager(
-  apiClient: ApiClient, 
-  config: NonceManagerConfig
-): NonceManager {
+export function createNonceManager(apiClient: ApiClient, config: NonceManagerConfig): NonceManager {
   return new NonceManager(apiClient, config);
 }
 
@@ -161,7 +158,7 @@ export async function fetchNextNonces(
 ): Promise<number[]> {
   const transactionApi = new TransactionApi(apiClient);
   const firstNonceResult = await transactionApi.getNextNonce(accountIndex, apiKeyIndex);
-  
+
   const nonces: number[] = [];
   for (let i = 0; i < count; i++) {
     nonces.push(firstNonceResult.nonce + i);

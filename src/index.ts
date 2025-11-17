@@ -1,6 +1,6 @@
 /**
  * Lighter TypeScript SDK
- * 
+ *
  * A comprehensive TypeScript SDK for interacting with the Lighter Protocol,
  * a decentralized perpetual exchange built on zkProof.
  */
@@ -30,23 +30,23 @@ export type { SignerConfig } from './signer/wasm-signer-client';
 
 // WASM Signer Classes
 export { WasmSignerClient, createWasmSignerClient } from './signer/wasm-signer';
-export type { 
-  WasmSignerConfig, 
+export type {
+  WasmSignerConfig,
   CreateClientParams,
   CreateOrderParams,
   CancelOrderParams,
   CancelAllOrdersParams,
   UpdateLeverageParams,
   WasmSignerResponse,
-  ApiKeyPair
+  ApiKeyPair,
 } from './signer/wasm-signer';
 
 // Export Order Types and Enums from the unified order file
-export { 
+export {
   OrderType,
   TimeInForce,
   TransactionStatus,
-  TransactionType
+  TransactionType,
 } from './signer/wasm-signer-client';
 
 // Export MarketHelper for simplified market utilities
@@ -70,11 +70,11 @@ export {
   TooManyRequestsException,
   ServiceException,
   ValidationException,
-  ConfigurationException
+  ConfigurationException,
 } from './utils/exceptions';
 
 // Types from AccountApi
-export type { 
+export type {
   Account,
   SubAccount,
   AccountPosition,
@@ -82,7 +82,7 @@ export type {
   ApiKey,
   PublicPool,
   PublicPoolShare,
-  Trade
+  Trade,
 } from './api/account-api';
 
 // Types from OrderApi
@@ -94,17 +94,11 @@ export type {
   OrderBookOrders,
   Order,
   ExchangeStats,
-  PriceLevel
+  PriceLevel,
 } from './api/order-api';
 
 // Types from TransactionApi
-export type {
-  Transaction,
-  Block,
-  NextNonce,
-  TxHash,
-  TxHashes
-} from './api/transaction-api';
+export type { Transaction, Block, NextNonce, TxHash, TxHashes } from './api/transaction-api';
 
 // Types from BridgeApi
 export type {
@@ -118,44 +112,26 @@ export type {
   WithdrawHistoryItem,
   L1DepositParams,
   L1DepositResult,
-  L1BridgeConfig
+  L1BridgeConfig,
 } from './types/api';
 
 // Types from FundingApi
-export type {
-  FundingRate,
-  FundingRates
-} from './api/funding-api';
+export type { FundingRate, FundingRates } from './api/funding-api';
 
 // Types from NotificationApi
-export type {
-  ResultCode
-} from './api/notification-api';
+export type { ResultCode } from './api/notification-api';
 
 // Types from ReferralApi
-export type {
-  ReferralPointEntry,
-  ReferralPoints
-} from './api/referral-api';
+export type { ReferralPointEntry, ReferralPoints } from './api/referral-api';
 
 // Types from AnnouncementApi
-export type {
-  Announcement,
-  Announcements
-} from './api/announcement-api';
+export type { Announcement, Announcements } from './api/announcement-api';
 
 // Types from BlockApi
-export type {
-  BlockQuery,
-  BlocksQuery,
-  CurrentHeightResponse
-} from './api/block-api';
+export type { BlockQuery, BlocksQuery, CurrentHeightResponse } from './api/block-api';
 
 // Types from CandlestickApi
-export type {
-  CandlestickQuery,
-  FundingQuery
-} from './api/candlestick-api';
+export type { CandlestickQuery, FundingQuery } from './api/candlestick-api';
 
 export type {
   OrderBookParams,
@@ -166,7 +142,7 @@ export type {
   ApiResponse,
   ApiError,
   WebSocketConfig,
-  WebSocketSubscription
+  WebSocketSubscription,
 } from './types';
 
 // Utility Classes
@@ -183,28 +159,28 @@ export const LIGHTER_CONSTANTS = {
   // Order Types
   ORDER_TYPE_LIMIT: 0,
   ORDER_TYPE_MARKET: 1,
-  
+
   // Time in Force
   ORDER_TIME_IN_FORCE_IMMEDIATE_OR_CANCEL: 0,
   ORDER_TIME_IN_FORCE_GOOD_TILL_TIME: 1,
   ORDER_TIME_IN_FORCE_FILL_OR_KILL: 2,
-  
+
   // Cancel All Orders Time in Force
   CANCEL_ALL_TIF_IMMEDIATE: 0,
   CANCEL_ALL_TIF_SCHEDULED: 1,
   CANCEL_ALL_TIF_ABORT: 2,
-  
+
   // Margin Modes
   CROSS_MARGIN_MODE: 0,
   ISOLATED_MARGIN_MODE: 1,
-  
+
   // Transaction Types
   TX_TYPE_CREATE_ORDER: 1,
   TX_TYPE_CANCEL_ORDER: 2,
   TX_TYPE_CANCEL_ALL_ORDERS: 3,
   TX_TYPE_TRANSFER: 4,
   TX_TYPE_UPDATE_LEVERAGE: 20,
-  
+
   // Other Constants
   NIL_TRIGGER_PRICE: 0,
   DEFAULT_28_DAY_ORDER_EXPIRY: -1,
@@ -212,14 +188,14 @@ export const LIGHTER_CONSTANTS = {
   DEFAULT_10_MIN_AUTH_EXPIRY: -1,
   MINUTE: 60,
   USDC_TICKER_SCALE: 1e6,
-  
+
   // Transaction Status Codes
   TX_STATUS_PENDING: 0,
   TX_STATUS_QUEUED: 1,
   TX_STATUS_COMMITTED: 2,
   TX_STATUS_EXECUTED: 3,
   TX_STATUS_FAILED: 4,
-  TX_STATUS_REJECTED: 5
+  TX_STATUS_REJECTED: 5,
 } as const;
 
 // Default Configuration
@@ -227,7 +203,7 @@ export const DEFAULT_CONFIG = {
   MAINNET_URL: 'https://mainnet.zklighter.elliot.ai',
   TESTNET_URL: 'https://testnet.zklighter.elliot.ai',
   DEFAULT_TIMEOUT: 30000,
-  DEFAULT_RETRIES: 3
+  DEFAULT_RETRIES: 3,
 } as const;
 
 // Version

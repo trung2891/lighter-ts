@@ -206,21 +206,37 @@ export class OrderApi {
     return response.data;
   }
 
-  public async getAccountActiveOrders(accountIndex: number, marketId: number, auth?: string): Promise<Order[]> {
-    const response = await this.client.get<{code: number, orders: Order[]}>('/api/v1/accountActiveOrders', {
-      account_index: accountIndex,
-      market_id: marketId,
-      ...(auth && { auth })
-    });
+  public async getAccountActiveOrders(
+    accountIndex: number,
+    marketId: number,
+    auth?: string
+  ): Promise<Order[]> {
+    const response = await this.client.get<{ code: number; orders: Order[] }>(
+      '/api/v1/accountActiveOrders',
+      {
+        account_index: accountIndex,
+        market_id: marketId,
+        ...(auth && { auth }),
+      }
+    );
     return response.data.orders || [];
   }
 
-  public async getAccountInactiveOrders(accountIndex: number, limit: number = 20, auth?: string, marketId?: number): Promise<Order[]> {
-    const response = await this.client.get<{code: number, orders: Order[], next_cursor?: string}>('/api/v1/accountInactiveOrders', {
+  public async getAccountInactiveOrders(
+    accountIndex: number,
+    limit: number = 20,
+    auth?: string,
+    marketId?: number
+  ): Promise<Order[]> {
+    const response = await this.client.get<{
+      code: number;
+      orders: Order[];
+      next_cursor?: string;
+    }>('/api/v1/accountInactiveOrders', {
       account_index: accountIndex,
       limit,
       ...(marketId !== undefined && { market_id: marketId }),
-      ...(auth && { auth })
+      ...(auth && { auth }),
     });
     return response.data.orders || [];
   }
@@ -263,7 +279,7 @@ export class OrderApi {
     if (marketId !== undefined) {
       params.market_id = marketId;
     }
-    
+
     const response = await this.client.delete<{ success: boolean }>('/api/v1/orders/all', {
       params,
     });

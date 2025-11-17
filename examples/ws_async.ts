@@ -22,7 +22,7 @@ async function asyncWebSocketExample() {
     },
     onMessage: (message) => {
       messageCount++;
-      
+
       // Handle different message types
       if (message.type === 'update/order_book') {
         lastOrderBookUpdate = message;
@@ -30,10 +30,14 @@ async function asyncWebSocketExample() {
         console.log(`   Channel: ${message.channel}`);
         console.log(`   Offset: ${message.offset}`);
         if (message.order_book?.bids?.length > 0) {
-          console.log(`   Best Bid: ${message.order_book.bids[0].price} (${message.order_book.bids[0].size})`);
+          console.log(
+            `   Best Bid: ${message.order_book.bids[0].price} (${message.order_book.bids[0].size})`
+          );
         }
         if (message.order_book?.asks?.length > 0) {
-          console.log(`   Best Ask: ${message.order_book.asks[0].price} (${message.order_book.asks[0].size})`);
+          console.log(
+            `   Best Ask: ${message.order_book.asks[0].price} (${message.order_book.asks[0].size})`
+          );
         }
       } else if (message.type === 'update/market_stats') {
         console.log(`📈 Market Stats Update #${messageCount}:`);
@@ -56,29 +60,29 @@ async function asyncWebSocketExample() {
       }
     },
     onClose: () => console.log('🔌 WebSocket closed'),
-    onError: (error) => console.error('❌ WebSocket error:', error)
+    onError: (error) => console.error('❌ WebSocket error:', error),
   });
 
   try {
     // Connect to WebSocket
     await wsClient.connect();
-    
+
     // Wait for connection to stabilize
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     // Subscribe to multiple channels
     const subscriptions = [
-      { type: 'subscribe', channel: 'order_book/0' },      // ETH order book
-      { type: 'subscribe', channel: 'order_book/1' },      // BTC order book
-      { type: 'subscribe', channel: 'market_stats/0' },    // ETH market stats
-      { type: 'subscribe', channel: 'market_stats/1' },    // BTC market stats
-      { type: 'subscribe', channel: 'trade/0' },           // ETH trades
-      { type: 'subscribe', channel: 'trade/1' }            // BTC trades
+      { type: 'subscribe', channel: 'order_book/0' }, // ETH order book
+      { type: 'subscribe', channel: 'order_book/1' }, // BTC order book
+      { type: 'subscribe', channel: 'market_stats/0' }, // ETH market stats
+      { type: 'subscribe', channel: 'market_stats/1' }, // BTC market stats
+      { type: 'subscribe', channel: 'trade/0' }, // ETH trades
+      { type: 'subscribe', channel: 'trade/1' }, // BTC trades
     ];
 
     // Send subscriptions with delays to avoid overwhelming the server
     for (let i = 0; i < subscriptions.length; i++) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       wsClient.send(subscriptions[i]);
       console.log(`✅ Subscribed to ${subscriptions[i].channel}`);
     }
@@ -88,11 +92,10 @@ async function asyncWebSocketExample() {
       console.log(`\n📊 Summary:`);
       console.log(`   Total messages received: ${messageCount}`);
       console.log(`   Last order book update: ${lastOrderBookUpdate ? 'Yes' : 'No'}`);
-      
+
       await wsClient.disconnect();
       console.log('🎉 Async WebSocket example completed!');
     }, 60000);
-
   } catch (error) {
     console.error('❌ Error:', error);
     await wsClient.disconnect();

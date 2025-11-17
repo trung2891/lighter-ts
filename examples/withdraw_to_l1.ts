@@ -15,7 +15,7 @@ async function withdrawToL1() {
     url: process.env['BASE_URL'] || 'https://mainnet.zklighter.elliot.ai',
     privateKey: process.env['API_PRIVATE_KEY'] || '',
     accountIndex: parseInt(process.env['ACCOUNT_INDEX'] || '0'),
-    apiKeyIndex: parseInt(process.env['API_KEY_INDEX'] || '0')
+    apiKeyIndex: parseInt(process.env['API_KEY_INDEX'] || '0'),
   });
 
   await signerClient.initialize();
@@ -24,7 +24,7 @@ async function withdrawToL1() {
   // Withdraw parameters
   const withdrawParams: WithdrawParams = {
     usdcAmount: parseFloat(process.env['WITHDRAW_AMOUNT'] || '20'), // USDC amount
-    nonce: -1 // Auto-fetch nonce
+    nonce: -1, // Auto-fetch nonce
   };
 
   try {
@@ -42,19 +42,21 @@ async function withdrawToL1() {
 
     console.log('✅ Withdraw Request Submitted!');
     console.log(`   Transaction Hash: ${txHash}`);
-    
+
     // Wait for transaction confirmation
     console.log('\n⏳ Waiting for withdraw confirmation...');
     try {
       await signerClient.waitForTransaction(txHash, 120000, 5000);
       console.log('✅ Withdrawal to L1 successful!');
     } catch (error) {
-      console.error('❌ Withdrawal failed:', error instanceof Error ? error.message : String(error));
+      console.error(
+        '❌ Withdrawal failed:',
+        error instanceof Error ? error.message : String(error)
+      );
     }
 
     console.log('\n🎉 Withdraw to L1 successful!');
     console.log('⚠️  Note: L1 withdrawal may take additional time to process on Ethereum mainnet');
-
   } catch (error) {
     console.error('❌ Error withdrawing to L1:', error);
   }

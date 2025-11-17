@@ -12,4 +12,4 @@ export class RootApi {
     const response = await this.client.get(`/info`);
     return response.data;
   }
-} 
+}

@@ -33,4 +33,4 @@ export class CandlestickApi {
     const response = await this.client.get(`/fundings`, { params: query });
     return response.data;
   }
-} 
+}

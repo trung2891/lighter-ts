@@ -154,10 +154,7 @@ export class ApiClient {
     return this.request<T>('PUT', url, data, config);
   }
 
-  public async delete<T = any>(
-    url: string,
-    config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> {
+  public async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     return this.request<T>('DELETE', url, undefined, config);
   }
 
